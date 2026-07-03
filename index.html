@@ -88,6 +88,9 @@
   .kpi .value { font-size: 1.9rem; font-weight: 700; color: var(--accent); }
   .kpi .hint { color: var(--muted); font-size: 0.72rem; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .grid21 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px; align-items: start; }
+  .grid21 .card { margin-bottom: 0; }
+  .scroll-list { max-height: 330px; overflow-y: auto; }
   .card {
     background: var(--card); border: 1px solid var(--card-border); border-radius: 14px;
     padding: 16px; margin-bottom: 12px;
@@ -112,7 +115,7 @@
   footer { color: var(--muted); font-size: 0.75rem; margin-top: 24px; text-align: center; }
   @media (max-width: 760px) {
     .kpis { grid-template-columns: repeat(2, 1fr); }
-    .grid2 { grid-template-columns: 1fr; }
+    .grid2, .grid21 { grid-template-columns: 1fr; }
     .chart-box { height: 220px; }
     .kpi .value { font-size: 1.6rem; }
   }
@@ -133,6 +136,7 @@
     <div class="kpi"><div class="label">Open questions</div><div class="value" id="kOpenQ"></div><div class="hint">การบ้านความสงสัยค้าง</div></div>
   </div>
 
+  <div class="grid21">
   <div class="card">
     <div class="card-head">
       <h2>หัวข้อที่เรียนต่อวัน (จาก commit ความรู้ใหม่: concept/insight/question)</h2>
@@ -159,7 +163,8 @@
 
   <div class="card">
     <h2>🧠 เรียนล่าสุด (concept / insight / question)</h2>
-    <ul class="plain" id="recentLearnedList"></ul>
+    <ul class="plain scroll-list" id="recentLearnedList"></ul>
+  </div>
   </div>
 
   <div class="card">
@@ -216,7 +221,7 @@
 <div id="hmTip"></div>
 
 <script>
-const DATA = {"generated_at": "2026-07-03 13:03", "inventory": {"total_notes": 64, "tag_counts": {"concept": 58, "hub": 4, "insight": 0, "question/open": 0, "question/resolved": 3, "interview-ready": 0, "interview-survival": 5, "moc": 2}, "domain_counts": {"DataScience": 62, "MOCs": 2}, "hub_moc_count": 6, "open_questions": [], "orphans": [], "unresolved_count": 13, "unresolved_links": [{"target": "Hugging Face Trainer", "count": 2}, {"target": "Gradient Accumulation", "count": 2}, {"target": "Python OOP", "count": 2}, {"target": "pandas dataframe", "count": 1}, {"target": "Python Built-ins", "count": 1}, {"target": "batch_size", "count": 1}, {"target": "Error Log", "count": 1}, {"target": "LSTM", "count": 1}, {"target": "Self-Attention", "count": 1}, {"target": "Interview MOC", "count": 1}], "hubs": ["Activation Function", "DataLoader", "Evaluation Metric", "F1-Score", "Home", "Type Hint"], "recent_insights": []}, "trend": {"dates": ["2026-07-03"], "new_notes": [0], "cumulative": [0], "insights": [0], "domain_series": {}, "current_streak": 0, "longest_streak": 0, "has_data": false}, "learned_counts": {"2026-07-01": 4, "2026-07-02": 6, "2026-07-03": 1}, "learned_items": {"2026-07-01": ["concept: F1-Score", "concept: Type Hint", "concept: Activation Function", "concept: DataLoader"], "2026-07-02": ["concept: Hugging Face Dataset map", "concept: Library map method", "concept: List Comprehension", "concept: Python map function", "concept: Map and List Comprehension", "concept: Out of Memory"], "2026-07-03": ["concept: PowerShell find large files"]}, "streak": {"current": 3, "longest": 3, "available": true}};
+const DATA = {"generated_at": "2026-07-03 13:07", "inventory": {"total_notes": 64, "tag_counts": {"concept": 58, "hub": 4, "insight": 0, "question/open": 0, "question/resolved": 3, "interview-ready": 0, "interview-survival": 5, "moc": 2}, "domain_counts": {"DataScience": 62, "MOCs": 2}, "hub_moc_count": 6, "open_questions": [], "orphans": [], "unresolved_count": 13, "unresolved_links": [{"target": "Hugging Face Trainer", "count": 2}, {"target": "Gradient Accumulation", "count": 2}, {"target": "Python OOP", "count": 2}, {"target": "pandas dataframe", "count": 1}, {"target": "Python Built-ins", "count": 1}, {"target": "batch_size", "count": 1}, {"target": "Error Log", "count": 1}, {"target": "LSTM", "count": 1}, {"target": "Self-Attention", "count": 1}, {"target": "Interview MOC", "count": 1}], "hubs": ["Activation Function", "DataLoader", "Evaluation Metric", "F1-Score", "Home", "Type Hint"], "recent_insights": []}, "trend": {"dates": ["2026-07-03"], "new_notes": [0], "cumulative": [0], "insights": [0], "domain_series": {}, "current_streak": 0, "longest_streak": 0, "has_data": false}, "learned_counts": {"2026-07-01": 4, "2026-07-02": 6, "2026-07-03": 1}, "learned_items": {"2026-07-01": ["concept: F1-Score", "concept: Type Hint", "concept: Activation Function", "concept: DataLoader"], "2026-07-02": ["concept: Hugging Face Dataset map", "concept: Library map method", "concept: List Comprehension", "concept: Python map function", "concept: Map and List Comprehension", "concept: Out of Memory"], "2026-07-03": ["concept: PowerShell find large files"]}, "streak": {"current": 3, "longest": 3, "available": true}};
 
 let theme = "dark"; // จำใน memory (ไม่ใช้ localStorage)
 const charts = [];
