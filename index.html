@@ -130,7 +130,7 @@
 
   <div class="card">
     <div class="card-head">
-      <h2>หัวข้อที่เรียนต่อวัน (นับจากวันที่สร้างโน้ต)</h2>
+      <h2>หัวข้อที่เรียนต่อวัน (จาก commit ความรู้ใหม่: concept/insight/question)</h2>
       <button id="dailyToggle" class="btn" type="button">🟩 GitHub view</button>
     </div>
     <div id="dailyBarWrap" class="chart-box"><canvas id="dailyBar"></canvas></div>
@@ -206,7 +206,7 @@
 <div id="hmTip"></div>
 
 <script>
-const DATA = {"generated_at": "2026-07-03 12:21", "inventory": {"total_notes": 64, "tag_counts": {"concept": 58, "hub": 4, "insight": 0, "question/open": 0, "question/resolved": 3, "interview-ready": 0, "interview-survival": 5, "moc": 2}, "domain_counts": {"DataScience": 62, "MOCs": 2}, "hub_moc_count": 6, "open_questions": [], "orphans": [], "unresolved_count": 13, "unresolved_links": [{"target": "Hugging Face Trainer", "count": 2}, {"target": "Gradient Accumulation", "count": 2}, {"target": "Python OOP", "count": 2}, {"target": "pandas dataframe", "count": 1}, {"target": "Python Built-ins", "count": 1}, {"target": "batch_size", "count": 1}, {"target": "Error Log", "count": 1}, {"target": "LSTM", "count": 1}, {"target": "Self-Attention", "count": 1}, {"target": "Interview MOC", "count": 1}], "hubs": ["Activation Function", "DataLoader", "Evaluation Metric", "F1-Score", "Home", "Type Hint"], "recent_insights": []}, "trend": {"dates": ["2026-07-03"], "new_notes": [0], "cumulative": [0], "insights": [0], "domain_series": {}, "current_streak": 0, "longest_streak": 0, "has_data": false}, "created_counts": {"2026-07-01": 57, "2026-07-02": 5, "2026-07-03": 1}};
+const DATA = {"generated_at": "2026-07-03 12:45", "inventory": {"total_notes": 64, "tag_counts": {"concept": 58, "hub": 4, "insight": 0, "question/open": 0, "question/resolved": 3, "interview-ready": 0, "interview-survival": 5, "moc": 2}, "domain_counts": {"DataScience": 62, "MOCs": 2}, "hub_moc_count": 6, "open_questions": [], "orphans": [], "unresolved_count": 13, "unresolved_links": [{"target": "Hugging Face Trainer", "count": 2}, {"target": "Gradient Accumulation", "count": 2}, {"target": "Python OOP", "count": 2}, {"target": "pandas dataframe", "count": 1}, {"target": "Python Built-ins", "count": 1}, {"target": "batch_size", "count": 1}, {"target": "Error Log", "count": 1}, {"target": "LSTM", "count": 1}, {"target": "Self-Attention", "count": 1}, {"target": "Interview MOC", "count": 1}], "hubs": ["Activation Function", "DataLoader", "Evaluation Metric", "F1-Score", "Home", "Type Hint"], "recent_insights": []}, "trend": {"dates": ["2026-07-03"], "new_notes": [0], "cumulative": [0], "insights": [0], "domain_series": {}, "current_streak": 0, "longest_streak": 0, "has_data": false}, "learned_counts": {"2026-07-01": 4, "2026-07-02": 6, "2026-07-03": 1}};
 
 let theme = "dark"; // จำใน memory (ไม่ใช้ localStorage)
 const charts = [];
@@ -384,7 +384,7 @@ function isoLocal(d) {
 function renderDailyBar() {
   if (typeof Chart === "undefined") return;
   if (dailyChart) dailyChart.destroy();
-  const cc = DATA.created_counts;
+  const cc = DATA.learned_counts;
   const labels = Object.keys(cc);
   dailyChart = new Chart(el("dailyBar"), {
     type: "bar",
@@ -401,15 +401,28 @@ const TH_MONTHS = ["มกราคม","กุมภาพันธ์","มี
   "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 let hmMonth = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })(); // เดือนที่ดูอยู่ (จำใน memory)
 
+// ระดับความเข้มแบบ quartile ของวันที่มีการเรียนจริง (แบบเดียวกับ GitHub)
+// กันเคสวันที่มี count โดดสูงลากให้วันอื่นซีดหมด
+function hmLevel(count, nonzero) {
+  if (!count) return 0;
+  if (!nonzero.length) return 1;
+  const sorted = [...nonzero].sort((a, b) => a - b);
+  const q = p => sorted[Math.floor(p * (sorted.length - 1))];
+  if (count <= q(0.25)) return 1;
+  if (count <= q(0.5)) return 2;
+  if (count <= q(0.75)) return 3;
+  return 4;
+}
+
 function renderHeatmap() {
-  const cc = DATA.created_counts;
+  const cc = DATA.learned_counts;
   const grid = el("hmGrid");
   grid.innerHTML = "";
   const y = hmMonth.getFullYear(), m = hmMonth.getMonth();
   el("hmMonthLabel").textContent = TH_MONTHS[m] + " " + y;
   const firstDay = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
-  const max = Math.max(1, ...Object.values(cc));
+  const nonzero = Object.values(cc).filter(v => v > 0);
   for (let i = 0; i < firstDay; i++) {
     const blank = document.createElement("span");
     blank.className = "hm-cell blank";
@@ -420,7 +433,7 @@ function renderHeatmap() {
     const count = cc[iso] || 0;
     const cell = document.createElement("span");
     cell.className = "hm-cell";
-    cell.dataset.l = count === 0 ? "0" : String(Math.min(4, Math.max(1, Math.ceil(count / max * 4))));
+    cell.dataset.l = String(hmLevel(count, nonzero));
     cell.dataset.date = iso;
     cell.dataset.count = count;
     grid.appendChild(cell);
