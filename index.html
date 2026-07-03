@@ -42,7 +42,8 @@
     line-height: 1.55;
     transition: background 0.25s, color 0.25s;
   }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 20px 16px 56px; }
+  .wrap { width: 100%; margin: 0 auto; padding: 20px 24px 56px; }
+  @media (max-width: 760px) { .wrap { padding: 16px 12px 48px; } }
   header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
   h1 { font-size: 1.35rem; margin: 0; font-weight: 700; }
   .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
@@ -57,11 +58,13 @@
   .hm-nav { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
   .hm-nav .btn { min-height: 36px; padding: 4px 14px; }
   #hmMonthLabel { font-weight: 600; font-size: 0.95rem; }
-  .hm-week-head, .hm-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-  .hm-week-head { margin-bottom: 6px; }
-  .hm-week-head span { text-align: center; font-size: 0.75rem; color: var(--muted); }
-  .hm-cell { aspect-ratio: 1; border-radius: 8px; background: var(--accent); }
+  .hm-week-head, .hm-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .hm-week-head { margin-bottom: 4px; }
+  .hm-week-head span { text-align: center; font-size: 0.72rem; color: var(--muted); }
+  /* สูงรวม ~6 แถว x 30px ≈ เท่ากล่องกราฟ bar (260px) */
+  .hm-cell { height: 30px; border-radius: 6px; background: var(--accent); position: relative; }
   .hm-cell.blank { background: transparent; }
+  .hm-day { position: absolute; top: 1px; left: 5px; font-size: 0.62rem; color: var(--text); opacity: 0.55; }
   .hm-cell[data-l="0"] { background: var(--grid); }
   .hm-cell[data-l="1"] { opacity: 0.35; }
   .hm-cell[data-l="2"] { opacity: 0.55; }
@@ -73,7 +76,9 @@
     position: fixed; display: none; z-index: 10; pointer-events: none;
     background: var(--card); color: var(--text); border: 1px solid var(--card-border);
     border-radius: 8px; padding: 6px 10px; font-size: 0.78rem; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    max-width: 320px; line-height: 1.5;
   }
+  #hmTip .tip-item { color: var(--muted); font-size: 0.73rem; display: block; }
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
   .kpi {
     background: var(--card); border: 1px solid var(--card-border); border-radius: 14px;
@@ -153,6 +158,11 @@
   </div>
 
   <div class="card">
+    <h2>🧠 เรียนล่าสุด (concept / insight / question)</h2>
+    <ul class="plain" id="recentLearnedList"></ul>
+  </div>
+
+  <div class="card">
     <h2>โน้ตใหม่ต่อวัน + ยอดสะสม (จาก daily log)</h2>
     <div id="trendWrap" class="chart-box"><canvas id="trendChart"></canvas></div>
   </div>
@@ -206,7 +216,7 @@
 <div id="hmTip"></div>
 
 <script>
-const DATA = {"generated_at": "2026-07-03 12:45", "inventory": {"total_notes": 64, "tag_counts": {"concept": 58, "hub": 4, "insight": 0, "question/open": 0, "question/resolved": 3, "interview-ready": 0, "interview-survival": 5, "moc": 2}, "domain_counts": {"DataScience": 62, "MOCs": 2}, "hub_moc_count": 6, "open_questions": [], "orphans": [], "unresolved_count": 13, "unresolved_links": [{"target": "Hugging Face Trainer", "count": 2}, {"target": "Gradient Accumulation", "count": 2}, {"target": "Python OOP", "count": 2}, {"target": "pandas dataframe", "count": 1}, {"target": "Python Built-ins", "count": 1}, {"target": "batch_size", "count": 1}, {"target": "Error Log", "count": 1}, {"target": "LSTM", "count": 1}, {"target": "Self-Attention", "count": 1}, {"target": "Interview MOC", "count": 1}], "hubs": ["Activation Function", "DataLoader", "Evaluation Metric", "F1-Score", "Home", "Type Hint"], "recent_insights": []}, "trend": {"dates": ["2026-07-03"], "new_notes": [0], "cumulative": [0], "insights": [0], "domain_series": {}, "current_streak": 0, "longest_streak": 0, "has_data": false}, "learned_counts": {"2026-07-01": 4, "2026-07-02": 6, "2026-07-03": 1}};
+const DATA = {"generated_at": "2026-07-03 13:03", "inventory": {"total_notes": 64, "tag_counts": {"concept": 58, "hub": 4, "insight": 0, "question/open": 0, "question/resolved": 3, "interview-ready": 0, "interview-survival": 5, "moc": 2}, "domain_counts": {"DataScience": 62, "MOCs": 2}, "hub_moc_count": 6, "open_questions": [], "orphans": [], "unresolved_count": 13, "unresolved_links": [{"target": "Hugging Face Trainer", "count": 2}, {"target": "Gradient Accumulation", "count": 2}, {"target": "Python OOP", "count": 2}, {"target": "pandas dataframe", "count": 1}, {"target": "Python Built-ins", "count": 1}, {"target": "batch_size", "count": 1}, {"target": "Error Log", "count": 1}, {"target": "LSTM", "count": 1}, {"target": "Self-Attention", "count": 1}, {"target": "Interview MOC", "count": 1}], "hubs": ["Activation Function", "DataLoader", "Evaluation Metric", "F1-Score", "Home", "Type Hint"], "recent_insights": []}, "trend": {"dates": ["2026-07-03"], "new_notes": [0], "cumulative": [0], "insights": [0], "domain_series": {}, "current_streak": 0, "longest_streak": 0, "has_data": false}, "learned_counts": {"2026-07-01": 4, "2026-07-02": 6, "2026-07-03": 1}, "learned_items": {"2026-07-01": ["concept: F1-Score", "concept: Type Hint", "concept: Activation Function", "concept: DataLoader"], "2026-07-02": ["concept: Hugging Face Dataset map", "concept: Library map method", "concept: List Comprehension", "concept: Python map function", "concept: Map and List Comprehension", "concept: Out of Memory"], "2026-07-03": ["concept: PowerShell find large files"]}, "streak": {"current": 3, "longest": 3, "available": true}};
 
 let theme = "dark"; // จำใน memory (ไม่ใช้ localStorage)
 const charts = [];
@@ -224,9 +234,9 @@ function el(id) { return document.getElementById(id); }
 
 function renderKPIs() {
   el("kTotal").textContent = DATA.inventory.total_notes;
-  el("kStreak").textContent = DATA.trend.has_data ? DATA.trend.current_streak + " วัน" : "—";
-  el("kStreakHint").textContent = DATA.trend.has_data
-    ? "longest: " + DATA.trend.longest_streak + " วัน" : "รอ daily log สะสม";
+  el("kStreak").textContent = DATA.streak.available ? DATA.streak.current + " วัน" : "—";
+  el("kStreakHint").textContent = DATA.streak.available
+    ? "longest: " + DATA.streak.longest + " วัน (จาก commit ความรู้ใหม่)" : "ยังไม่มี commit ความรู้ใหม่";
   el("kInterview").textContent = DATA.inventory.tag_counts["interview-ready"];
   el("kOpenQ").textContent = DATA.inventory.open_questions.length;
 }
@@ -250,6 +260,15 @@ function esc(s) {
 }
 
 function renderLists() {
+  // เรียนล่าสุด: รวมรายการจาก learned_items เรียงวันที่ใหม่ -> เก่า
+  const recent = [];
+  for (const d of Object.keys(DATA.learned_items).sort().reverse()) {
+    for (const it of DATA.learned_items[d]) recent.push({ date: d, item: it });
+    if (recent.length >= 10) break;
+  }
+  list("recentLearnedList", recent.slice(0, 10),
+    r => "<span>" + esc(r.item) + '</span><span class="pill">' + esc(r.date) + "</span>",
+    "ยังไม่มี commit ความรู้ใหม่ (concept:/insight:/question:)");
   list("openQList", DATA.inventory.open_questions,
     q => "<span>" + esc(q) + "</span>", "ไม่มีคำถามค้าง 🎉");
   list("insightList", DATA.inventory.recent_insights,
@@ -393,7 +412,16 @@ function renderDailyBar() {
       datasets: [{ label: "หัวข้อ/วัน", data: labels.map(d => cc[d]),
         backgroundColor: cssVar("--accent"), borderRadius: 4 }],
     },
-    options: (() => { const o = baseOpts(); o.plugins.legend.display = false; return o; })(),
+    options: (() => {
+      const o = baseOpts();
+      o.plugins.legend.display = false;
+      o.plugins.tooltip = {
+        callbacks: {
+          afterBody: ctx => (DATA.learned_items[ctx[0].label] || []).map(s => "• " + s),
+        },
+      };
+      return o;
+    })(),
   });
 }
 
@@ -436,6 +464,7 @@ function renderHeatmap() {
     cell.dataset.l = String(hmLevel(count, nonzero));
     cell.dataset.date = iso;
     cell.dataset.count = count;
+    cell.innerHTML = '<span class="hm-day">' + day + "</span>";
     grid.appendChild(cell);
   }
 }
@@ -453,7 +482,9 @@ const hmTip = document.getElementById("hmTip");
 el("hmGrid").addEventListener("pointerover", e => {
   const c = e.target.closest(".hm-cell");
   if (!c || !c.dataset.date) return;
-  hmTip.textContent = c.dataset.date + " — เรียน " + c.dataset.count + " หัวข้อ";
+  const items = DATA.learned_items[c.dataset.date] || [];
+  hmTip.innerHTML = "<b>" + c.dataset.date + "</b> — เรียน " + c.dataset.count + " หัวข้อ"
+    + items.map(s => '<span class="tip-item">• ' + esc(s) + "</span>").join("");
   hmTip.style.display = "block";
 });
 el("hmGrid").addEventListener("pointermove", e => {
